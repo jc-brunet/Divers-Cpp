@@ -210,6 +210,31 @@ bool convexite_lignes(Carte &carte, vector<int> const &labels_bords)
   return true;
 }
 
+bool convexite_lignes(Carte &carte)
+{
+  marque_composantes(carte);
+  vector<int> composantes_bord;
+  for (auto ligne : carte)
+  {
+    int i = 0;
+
+    while (ligne[i] != 1)
+    {
+      ajoute_unique(composantes_bord, ligne[i]);
+      i++;
+    }
+    i = ligne.size() - 1;
+    while (ligne[i] != 1)
+    {
+      ajoute_unique(composantes_bord, ligne[i]);
+      i--;
+    }
+  }
+  return (convexite_lignes(carte, composantes_bord));
+}
+
+//TODO: tester si ca marche
+
 /*******************************************
  * Ne rien modifier après cette ligne.
  *******************************************/
