@@ -60,9 +60,16 @@ void affiche(Carte const &carte)
 
 bool verifie_et_modifie(Carte &carte)
 {
+
   if (!binaire(carte))
   {
     cout << "Votre carte du terrain ne contient pas que des 0 et des 1." << endl;
+    return false;
+  }
+
+  if (!convexite_lignes(carte))
+  {
+
     return false;
   }
   for (auto &ligne : carte)
@@ -99,19 +106,19 @@ double longueur_cloture(Carte const &carte,
     {
       if (carte[i][j] == 1)
       {
-        if (i == 0 || carte[i - 1][j] == 0)
+        if (i == 0 || carte[i - 1][j] != 1)
         {
           perimetreMathematique++;
         }
-        if (i == carte.size() - 1 || carte[i + 1][j] == 0)
+        if (i == carte.size() - 1 || carte[i + 1][j] != 1)
         {
           perimetreMathematique++;
         }
-        if (j == 0 || carte[i][j - 1] == 0)
+        if (j == 0 || carte[i][j - 1] != 1)
         {
           perimetreMathematique++;
         }
-        if (j == carte[i].size() - 1 || carte[i][j + 1] == 0)
+        if (j == carte[i].size() - 1 || carte[i][j + 1] != 1)
         {
           perimetreMathematique++;
         }
@@ -188,20 +195,38 @@ void ajoute_unique(vector<int> &ensemble, int valeur)
 
 bool convexite_lignes(Carte &carte, vector<int> const &labels_bords)
 {
-  for (size_t i = 0; i < carte.size(); i++)
+  for (int i = 0; i < carte.size(); i++)
   {
-    for (size_t j = 0; j < carte[i].size(); j++)
-    {
-      if (carte[i][j] != 1)
-      {
-        for (auto composantesBords : labels_bords)
-        {
-          if (carte[i][j] == composantesBords)
-          {
-            cout << "Votre carte n'est pas convexe par lignes :" << endl;
-            cout << "bord extérieur entrant trouvé en position [" << i << "][" << j << "]" << endl;
+    int jBegin = 0;
 
-            return false;
+    while (jBegin < carte[i].size() && carte[i][jBegin] != 1)
+    {
+      jBegin++;
+    }
+    int jEnd = carte[i].size() - 1;
+    while (jEnd >= 0 && carte[i][jEnd] != 1)
+    {
+      jEnd--;
+    }
+    if (jBegin <= jEnd)
+    {
+      for (int k = jBegin; k <= jEnd; k++)
+      {
+        if (carte[i][k] != 1)
+        {
+          for (auto labelBords : labels_bords)
+          {
+            if (carte[i][k] == labelBords)
+            {
+              cout << "Votre carte n'est pas convexe par lignes :" << endl;
+              cout << "bord extérieur entrant trouvé en position [";
+              cout << i;
+              cout << "][";
+              cout << k;
+              cout << "]" << endl;
+
+              return false;
+            }
           }
         }
       }
@@ -213,27 +238,26 @@ bool convexite_lignes(Carte &carte, vector<int> const &labels_bords)
 bool convexite_lignes(Carte &carte)
 {
   marque_composantes(carte);
-  vector<int> composantes_bord;
+  affiche(carte);
+  vector<int> labels_bords;
   for (auto ligne : carte)
   {
     int i = 0;
 
-    while (ligne[i] != 1)
+    while (i < ligne.size() && ligne[i] != 1)
     {
-      ajoute_unique(composantes_bord, ligne[i]);
+      ajoute_unique(labels_bords, ligne[i]);
       i++;
     }
     i = ligne.size() - 1;
-    while (ligne[i] != 1)
+    while (i >= 0 && ligne[i] != 1)
     {
-      ajoute_unique(composantes_bord, ligne[i]);
+      ajoute_unique(labels_bords, ligne[i]);
       i--;
     }
   }
-  return (convexite_lignes(carte, composantes_bord));
+  return (convexite_lignes(carte, labels_bords));
 }
-
-//TODO: tester si ca marche
 
 /*******************************************
  * Ne rien modifier après cette ligne.
@@ -273,15 +297,6 @@ int main()
       {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
   cout << "Carte au depart :" << endl;
-  affiche(carte);
-
-  // cout << "Carte modifiées" << endl;
-  // carte[8][7] = 2;
-  // carte = {{0, 1, 1, 1, 0}, {0, 1, 0, 1, 0}, {0, 1, 1, 1, 0}};
-  // carte = {{1, 1, 1}, {0, 0, 1}, {1, 1, 1}};
-  // carte = {{1}};
-  // carte = {{1, 1}, {1, 1}};
-  marque_composantes(carte);
   affiche(carte);
 
   if (verifie_et_modifie(carte))
