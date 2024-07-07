@@ -72,24 +72,26 @@ bool verifie_et_modifie(Carte &carte)
 
     return false;
   }
+
   for (auto &ligne : carte)
   {
     for (size_t i = 1; i < ligne.size(); i++)
     {
-      if (ligne[i] == 0 && ligne[i - 1] == 1)
+      if (ligne[i] != 1 && ligne[i - 1] == 1)
       {
-        bool isEtang = false;
+        // On vérifie si ligne[i] est un étang ou un bord
         int indexADroite = i + 1;
-        while (!(isEtang) && (indexADroite < ligne.size()))
+        while ((indexADroite < ligne.size()))
         {
-          isEtang = isEtang || ligne[indexADroite] == 1;
+          if (ligne[indexADroite] == 1)
+          {
+            ligne[i] = 1;
+            break;
+            break;
+            break;
+          }
           indexADroite++;
         }
-        if (!isEtang)
-        {
-          break;
-        }
-        ligne[i] = 1;
       }
     }
   }
@@ -218,7 +220,7 @@ bool convexite_lignes(Carte &carte, vector<int> const &labels_bords)
           {
             if (carte[i][k] == labelBords)
             {
-              cout << "Votre carte n'est pas convexe par lignes :" << endl;
+              cout << "Votre carte du terrain n'est pas convexe par lignes :" << endl;
               cout << "bord extérieur entrant trouvé en position [";
               cout << i;
               cout << "][";
@@ -238,8 +240,8 @@ bool convexite_lignes(Carte &carte, vector<int> const &labels_bords)
 bool convexite_lignes(Carte &carte)
 {
   marque_composantes(carte);
-  affiche(carte);
   vector<int> labels_bords;
+  //TODO: 1ere et derniere ligne!!
   for (auto ligne : carte)
   {
     int i = 0;
@@ -296,14 +298,20 @@ int main()
       {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-  cout << "Carte au depart :" << endl;
+  cout << "Carte au départ :" << endl;
+  affiche(carte);
+
+  carte={{1,1,1},{1,0,1}};
+  convexite_lignes(carte);
   affiche(carte);
 
   if (verifie_et_modifie(carte))
   {
     cout << "Carte après modification :" << endl;
     affiche(carte);
-    cout << "Il vous faut " << longueur_cloture(carte) << " mètres de clôture pour votre terrain." << endl;
+    cout << "Il vous faut " << longueur_cloture(carte)
+         << " mètres de clôture pour votre terrain."
+         << endl;
   }
 
   return 0;
